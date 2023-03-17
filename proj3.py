@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import time
 import sys
 from queue import PriorityQueue
+import cv2 as cv
 
 #defining each possible move
 def moveForward(l, state):
@@ -204,28 +205,29 @@ for i in range(0,600):
             map_empty[i,j,:] = [239,76,76]
 
 
-# #assigning start and end points
-# print('Enter start node x:')
-# sx = int(input())
-# print('Enter start node y:')
-# sy = int(input())
-# print('Enter goal node x:')
-# gx = int(input())
-# print('Enter goal node y:')
-# gy = int(input())
-# print('Start Node:',sx, sy)
-# print('Goal Node:',gx, gy)
-# Xs = [sx, sy]
+#assigning start and end points
+print('Enter start node x:')
+sx = int(input())
+print('Enter start node y:')
+sy = int(input())
+print('Enter starting angle (0 degreees points East):')
+sa = int(input())
+print('Enter goal node x:')
+gx = int(input())
+print('Enter goal node y:')
+gy = int(input())
+print('Enter goal angle (0 degreees points East):')
+ga = int(input())
+print('Start Node:',sx, sy, sa)
+print('Goal Node:',gx, gy, ga)
+Xs = [sx, sy, sa]
+goal = [gx,gy]
+goal_angle = ga
 
-# if gy >= 250:
-#     gy = 249
-# if gx >= 600:
-#     gx = 599
-# goal = [gx, gy]
 dim = (600,250)
 #creating start and goal nodes with 0 degrees initial angle
-Xs = [6,6,0]
-goal = [25,30]
+# Xs = [10,10,0]
+# goal = [580,230]
 #goal = [580,240]
 l = 5
 
@@ -234,14 +236,14 @@ vdimx = int(600/0.5)
 vdimy = int(250/0.5)
 vdim = (vdimx,vdimy,12)
 V = np.zeros(vdim)
-#print(V.shape)
+
 ##checking for goalpoint or start point in obstacle
-# if map_empty[gx,gy,0] != 0:
-#     print("goal lies in obstacle")
-#     sys.exit()
-# if map_empty[sx,sy,0] != 0:
-#     print("start lies in obstacle")
-#     sys.exit()
+if map_empty[gx,gy,0] != 0:
+    print("goal lies in obstacle")
+    sys.exit()
+if map_empty[sx,sy,0] != 0:
+    print("start lies in obstacle")
+    sys.exit()
 
 #creating cost to come and total cost matricies
 cost_map = np.zeros(dim)
@@ -268,8 +270,12 @@ ClosedList = []
 closed_list = []
 cost_map[Xs[0],Xs[1]] = 0
 goal_thresh = 3
-d = 0
+d = 1
 parents = {}
+c = 1
+#start timer
+start_time = time.time()
+
 #begin A* algorithm
 OpenList.put((0,Xs))
 while OpenList and goal_state != 0:
@@ -283,8 +289,8 @@ while OpenList and goal_state != 0:
     #if node is within goal threshold, end loop
     if Node_State_i[0] > goal[0]-goal_thresh and Node_State_i[1] > goal[1]-goal_thresh and Node_State_i[0] < goal[0]+goal_thresh and Node_State_i[1] < goal[1]+goal_thresh:
         print('SUCCESS')
-        goal[0] = Node_State_i[0]
-        goal[1] = Node_State_i[1]
+        goal[0] = int(round(Node_State_i[0]))
+        goal[1] = int(round(Node_State_i[1]))
         cost2come = l + cost_map[int(round(Node_State_i[0])),int(round(Node_State_i[1]))]
         cost_map[int(round(Node_State_i[0])),int(round(Node_State_i[1]))] = cost2come
         break
@@ -298,6 +304,11 @@ while OpenList and goal_state != 0:
         if V[[int(round(item[0]))],[int(round(item[1]))], [int(item[2]%30)]] == 0:
             if item is not OpenList:
                 V[[int(round(item[0]))],[int(round(item[1]))], [int(item[2]%30)]] = 1
+                #c = c+1
+                map_empty[int(round(item[0])),int(round(item[1])),1] = 255 ######
+                # if c % 10 == 0:
+                #     cv.imwrite("images/Frame%d.jpg"%d, map_empty)
+                #     d = d+1
                 cost2come = l + cost_map[int(round(Node_State_i[0])),int(round(Node_State_i[1]))]
                 cost_map[int(round(item[0])),int(round(item[1]))] = cost2come
                 cost2go = CalcCostGo(item,goal)
@@ -317,26 +328,38 @@ while OpenList and goal_state != 0:
                 parents.setdefault((int(round(Node_State_i[0])),int(round(Node_State_i[1]))), [])
                 parents[int(round(Node_State_i[0])),int(round(Node_State_i[1]))].append([int(round(item[0])),int(round(item[1]))])
     testing_node = []
-    
-print(parents)
 
-# def find_path(graph, start, end, path=[]):
-#     path = path + [start]
-#     if start == end:
-#         return path
-#     for node in graph[start]:
-#         if node not in path:
-#             newpath = find_path(graph, node, end, path)
-#             if newpath:
-#                 return newpath
+# print(goal)
+#print(parents)
 
-#a = find_path(parents,[10,10],[23,12])
-# key_list = list(parents.keys())
-# val_list = list(parents.values())
-# print(val_list[0][0])
-# print key with val 100
-# position = val_list.index([[23, 12]])
-# print(key_list[position])
+# Find dictionary matching value in list
+# print(" ")
+key_list=list(parents.keys())
+val_list=list(parents.values())
+
+# print(key_list)
+# print(val_list[3][2])
+path = []
+path.append(goal)
+node = goal
+start = [Xs[0], Xs[1]]
+while node != start:
+    for list in val_list:
+        if node in list:
+            ind = val_list.index(list)
+            path.append(key_list[ind])
+            node = [key_list[ind][0], key_list[ind][1]]
+
+path.reverse()
+#end timer and print
+print("A* search took %s seconds" % (time.time() - start_time))
+# for item in V:
+#     print(item)
+#     time.sleep(1)
+# for node in path:
+#     x = node[0]
+#     y = node[1]
+#     map_empty[x,y,:] = [255,255,255]
 
 #mark all visited nodes as green
 for i in range(0, V.shape[0]):
@@ -345,11 +368,18 @@ for i in range(0, V.shape[0]):
             if V[i][j][k] == 1:
                 map_empty[i,j,1] = 255
 
-#swap axes
-map_final = np.transpose(map_empty, (1, 0, 2))
+image = map_empty
 
-#plot map
-plt.imshow(map_final)
-plt.gca().invert_yaxis()
-plt.show()
+for i in range(0,len(path) - 1):
+    x1 = path[i][0]
+    y1 = path[i][1]
+    x2 = path[i+1][0]
+    y2 = path[i+1][1]
+    image = cv.arrowedLine(image, (y1,x1), (y2,x2), color=(0,0,255), thickness=1) 
 
+map_final = cv.rotate(image, cv.ROTATE_90_COUNTERCLOCKWISE)
+map_final = cv.cvtColor(map_final, cv.COLOR_RGB2BGR)
+
+cv.imshow("A* Search with best path",map_final)
+cv.waitKey(0)
+cv.destroyAllWindows()
