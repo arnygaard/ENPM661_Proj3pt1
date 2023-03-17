@@ -224,8 +224,8 @@ for i in range(0,600):
 # goal = [gx, gy]
 dim = (600,250)
 #creating start and goal nodes with 0 degrees initial angle
-Xs = [10,10,0]
-goal = [580,240]
+Xs = [6,6,0]
+goal = [25,30]
 #goal = [580,240]
 l = 5
 
@@ -269,7 +269,7 @@ closed_list = []
 cost_map[Xs[0],Xs[1]] = 0
 goal_thresh = 3
 d = 0
-
+parents = {}
 #begin A* algorithm
 OpenList.put((0,Xs))
 while OpenList and goal_state != 0:
@@ -303,6 +303,8 @@ while OpenList and goal_state != 0:
                 cost2go = CalcCostGo(item,goal)
                 cost = cost2come + cost2go
                 total_cost_map[int(round(item[0])),int(round(item[1]))] = cost
+                parents.setdefault((int(round(Node_State_i[0])),int(round(Node_State_i[1]))), [])
+                parents[int(round(Node_State_i[0])),int(round(Node_State_i[1]))].append([int(round(item[0])),int(round(item[1]))])
                 OpenList.put((cost,item))
         #if node has been visited, check to see if new total cost is less than the current total cost
         else:
@@ -312,7 +314,29 @@ while OpenList and goal_state != 0:
             #if new total cost is greater, update with lower value
             if total_cost_map[int(round(item[0])),int(round(item[1]))] > cost:
                 total_cost_map[int(round(item[0])),int(round(item[1]))] = cost
+                parents.setdefault((int(round(Node_State_i[0])),int(round(Node_State_i[1]))), [])
+                parents[int(round(Node_State_i[0])),int(round(Node_State_i[1]))].append([int(round(item[0])),int(round(item[1]))])
     testing_node = []
+    
+print(parents)
+
+# def find_path(graph, start, end, path=[]):
+#     path = path + [start]
+#     if start == end:
+#         return path
+#     for node in graph[start]:
+#         if node not in path:
+#             newpath = find_path(graph, node, end, path)
+#             if newpath:
+#                 return newpath
+
+#a = find_path(parents,[10,10],[23,12])
+# key_list = list(parents.keys())
+# val_list = list(parents.values())
+# print(val_list[0][0])
+# print key with val 100
+# position = val_list.index([[23, 12]])
+# print(key_list[position])
 
 #mark all visited nodes as green
 for i in range(0, V.shape[0]):
