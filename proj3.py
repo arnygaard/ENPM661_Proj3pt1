@@ -206,6 +206,8 @@ for i in range(0,600):
 
 
 #assigning start and end points
+print('Enter step size:')
+l = int(input())
 print('Enter start node x:')
 sx = int(input())
 print('Enter start node y:')
@@ -220,16 +222,13 @@ print('Enter goal angle (0 degreees points East):')
 ga = int(input())
 print('Start Node:',sx, sy, sa)
 print('Goal Node:',gx, gy, ga)
+print('Step Size:',l)
+#assign values and dimensions
 Xs = [sx, sy, sa]
 goal = [gx,gy]
 goal_angle = ga
-
 dim = (600,250)
-#creating start and goal nodes with 0 degrees initial angle
-# Xs = [10,10,0]
-# goal = [580,230]
-#goal = [580,240]
-l = 5
+#l = 5
 
 #creating visit matrix
 vdimx = int(600/0.5)
@@ -329,16 +328,10 @@ while OpenList and goal_state != 0:
                 parents[int(round(Node_State_i[0])),int(round(Node_State_i[1]))].append([int(round(item[0])),int(round(item[1]))])
     testing_node = []
 
-# print(goal)
-#print(parents)
-
-# Find dictionary matching value in list
-# print(" ")
+#Backtracking algorithm
 key_list=list(parents.keys())
 val_list=list(parents.values())
 
-# print(key_list)
-# print(val_list[3][2])
 path = []
 path.append(goal)
 node = goal
@@ -349,17 +342,10 @@ while node != start:
             ind = val_list.index(list)
             path.append(key_list[ind])
             node = [key_list[ind][0], key_list[ind][1]]
-
 path.reverse()
+
 #end timer and print
 print("A* search took %s seconds" % (time.time() - start_time))
-# for item in V:
-#     print(item)
-#     time.sleep(1)
-# for node in path:
-#     x = node[0]
-#     y = node[1]
-#     map_empty[x,y,:] = [255,255,255]
 
 #mark all visited nodes as green
 for i in range(0, V.shape[0]):
@@ -377,6 +363,7 @@ for i in range(0,len(path) - 1):
     y2 = path[i+1][1]
     image = cv.arrowedLine(image, (y1,x1), (y2,x2), color=(0,0,255), thickness=1) 
 
+#creating and displaying final map
 map_final = cv.rotate(image, cv.ROTATE_90_COUNTERCLOCKWISE)
 map_final = cv.cvtColor(map_final, cv.COLOR_RGB2BGR)
 
