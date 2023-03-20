@@ -328,10 +328,14 @@ while OpenList and goal_state != 0:
                 parents[int(round(Node_State_i[0])),int(round(Node_State_i[1]))].append([int(round(item[0])),int(round(item[1]))])
     testing_node = []
 
+#end timer and print
+print("A* search took %s seconds" % (time.time() - start_time))
+
 #Backtracking algorithm
 key_list=list(parents.keys())
 val_list=list(parents.values())
 
+print("Generating Path...")
 path = []
 path.append(goal)
 node = goal
@@ -344,8 +348,7 @@ while node != start:
             node = [key_list[ind][0], key_list[ind][1]]
 path.reverse()
 
-#end timer and print
-print("A* search took %s seconds" % (time.time() - start_time))
+
 
 #mark all visited nodes as green
 for i in range(0, V.shape[0]):
